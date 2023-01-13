@@ -10,7 +10,7 @@ install_requires = (this_directory / "requirements.txt").read_text().splitlines(
 
 setup(
     name="ocf_ml_metrics",
-    version="0.0.1",
+    version="0.0.2",
     license="MIT",
     description="Common metrics and baselines for OCF's energy forecasting work",
     author="Jacob Bieker, Jack Kelly, Peter Dudfield",
