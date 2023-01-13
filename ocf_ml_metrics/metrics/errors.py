@@ -1,6 +1,7 @@
 import numpy as np
 
-def common_error_metrics(predictions: np.ndarray, target: np.ndarray, tag: str = ""):
+
+def common_error_metrics(predictions: np.ndarray, target: np.ndarray, tag: str = "") -> dict:
     """
     Common error metrics base
 
@@ -16,10 +17,27 @@ def common_error_metrics(predictions: np.ndarray, target: np.ndarray, tag: str =
     """
     error_dict = {}
 
-    error_dict[tag+"nmae"] = np.mean(np.abs(predictions - target))
-    error_dict[tag+"mae"] = np.mean(np.square(predictions - target))
-    error_dict[tag+"rmse"] = np.sqrt(np.mean(np.square(predictions - target)))
+    error_dict[tag + "nmae"] = np.mean(np.abs(predictions - target))
+    error_dict[tag + "mae"] = np.mean(np.square(predictions - target))
+    error_dict[tag + "rmse"] = np.sqrt(np.mean(np.square(predictions - target)))
 
     # Now per timestep
 
     return error_dict
+
+
+def compute_error_part_of_day(predictions: np.ndarray, target: np.ndarray, hour_split: dict) -> dict:
+    pass
+
+
+def compute_error_part_of_year(predictions: np.ndarray, target: np.ndarray, year_split: dict) -> dict:
+    pass
+
+
+def compute_error_without_night(predictions: np.ndarray, target: np.ndarray, sun_position_for_night: float) -> dict:
+    pass
+
+
+def compute_large_errors(predictions: np.ndarray, target: np.ndarray, threshold: float, sigma: float) -> dict:
+    pass
+
