@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def common_error_metrics(predictions: np.ndarray, target: np.ndarray, tag: str = "") -> dict:
+def common_error_metrics(predictions: np.ndarray, target: np.ndarray, tag: str = "", **kwargs) -> dict:
     """
     Common error metrics base
 
@@ -17,9 +17,9 @@ def common_error_metrics(predictions: np.ndarray, target: np.ndarray, tag: str =
     """
     error_dict = {}
 
-    error_dict[tag + "/nmae"] = np.mean(np.abs(predictions - target))
-    error_dict[tag + "/mae"] = np.mean(np.square(predictions - target))
-    error_dict[tag + "/rmse"] = np.sqrt(np.mean(np.square(predictions - target)))
+    error_dict[tag + "nmae"] = np.mean(np.abs(predictions - target))
+    error_dict[tag + "mae"] = np.mean(np.square(predictions - target))
+    error_dict[tag + "rmse"] = np.sqrt(np.mean(np.square(predictions - target)))
 
     # Now per timestep
 
@@ -32,7 +32,8 @@ def compute_error_part_of_day(predictions: np.ndarray,
                               hour_split: dict = {"Night": (21,22,23,0,1,2,3),
                                                   "Morning": (4,5,6,7,8,9),
                                                   "Afternoon": (10,11,12,13,14,15),
-                                                  "Evening": (16,17,18,19,20)}) -> dict:
+                                                  "Evening": (16,17,18,19,20)},
+                              **kwargs) -> dict:
     """
     Compute error based on the time of day
 
@@ -48,7 +49,7 @@ def compute_error_part_of_day(predictions: np.ndarray,
     errors = {}
     for split, hours in hour_split.items():
         split_dates = np.asarray([i for i, d in enumerate(datetimes) if d.hour in hours])
-        errors.update(common_error_metrics(predictions[split_dates], target[split_dates], tag=split))
+        errors.update(common_error_metrics(predictions[split_dates], target[split_dates], tag=split+"/"))
     return errors
 
 
@@ -58,7 +59,8 @@ def compute_error_part_of_year(predictions: np.ndarray,
                                year_split: dict = {"Winter": (11,0,1),
                                                    "Spring": (2,3,4),
                                                    "Summer": (5,6,7),
-                                                   "Fall": (8,9,10)}) -> dict:
+                                                   "Fall": (8,9,10)},
+                               **kwargs) -> dict:
     """
     Compute error based on year split
 
@@ -74,10 +76,32 @@ def compute_error_part_of_year(predictions: np.ndarray,
     errors = {}
     for split, months in year_split.items():
         split_dates = np.asarray([i for i, d in enumerate(datetimes) if d.month in months])
-        errors.update(common_error_metrics(predictions[split_dates], target[split_dates], tag=split))
+        errors.update(common_error_metrics(predictions[split_dates], target[split_dates], tag=split+"/"))
     return errors
 
 
-def compute_large_errors(predictions: np.ndarray, target: np.ndarray, threshold: float, sigma: float) -> dict:
+def compute_large_errors(predictions: np.ndarray, target: np.ndarray, threshold: float, sigma: float, **kwargs) -> dict:
     pass
 
+
+def compute_metrics(predictions: np.ndarray, target: np.ndarray, datetimes: np.ndarray, tag: str = "", **kwargs) -> dict:
+    """
+    Convience function to compute all metrics
+
+    Args:
+        predictions: Prediction array
+        target: Target array
+        datetimes: Datetimes for the array
+        tag: Tag to use for overall (i.e. train/val/test)
+        **kwargs: Kwargs for other options, like hour split, or year split
+
+    Returns:
+        Dictionary of errors
+    """
+    errors = common_error_metrics(predictions=predictions, target=target)
+    errors.update(compute_error_part_of_day(predictions=predictions, target=target, datetimes=datetimes, **kwargs))
+    errors.update(compute_error_part_of_year(predictions=predictions, target=target, datetimes=datetimes, **kwargs))
+    for key in errors.keys():
+        errors[tag+"/"+key] = errors.pop(key)
+
+    return errors
