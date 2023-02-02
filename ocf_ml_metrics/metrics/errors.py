@@ -26,15 +26,11 @@ def common_error_metrics(predictions: np.ndarray, target: np.ndarray, tag: str =
     return error_dict
 
 
-def compute_error_part_of_day(predictions: np.ndarray, target: np.ndarray, hour_split: dict) -> dict:
+def compute_error_part_of_day(predictions: np.ndarray, target: np.ndarray, datetimes: np.ndarray, hour_split: dict) -> dict:
     pass
 
 
-def compute_error_part_of_year(predictions: np.ndarray, target: np.ndarray, year_split: dict) -> dict:
-    pass
-
-
-def compute_error_without_night(predictions: np.ndarray, target: np.ndarray, sun_position_for_night: float) -> dict:
+def compute_error_part_of_year(predictions: np.ndarray, target: np.ndarray, datetimes: np.ndarray, year_split: dict) -> dict:
     pass
 
 
