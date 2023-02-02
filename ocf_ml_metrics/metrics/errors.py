@@ -1,5 +1,5 @@
 import numpy as np
-
+from ocf_ml_metrics.utils import filter_night
 
 def common_error_metrics(predictions: np.ndarray, target: np.ndarray, tag: str = "", **kwargs) -> dict:
     """
@@ -84,7 +84,7 @@ def compute_large_errors(predictions: np.ndarray, target: np.ndarray, threshold:
     pass
 
 
-def compute_metrics(predictions: np.ndarray, target: np.ndarray, datetimes: np.ndarray, tag: str = "", **kwargs) -> dict:
+def compute_metrics(predictions: np.ndarray, target: np.ndarray, datetimes: np.ndarray, filter_by_night: bool = False, tag: str = "", **kwargs) -> dict:
     """
     Convience function to compute all metrics
 
@@ -93,6 +93,8 @@ def compute_metrics(predictions: np.ndarray, target: np.ndarray, datetimes: np.n
         target: Target array
         datetimes: Datetimes for the array
         tag: Tag to use for overall (i.e. train/val/test)
+        filter_by_night: Filter by night time as well and return metrics for only daytime,
+            requires 'latitude'm 'longitude', and 'sun_position_for_night' kwargs
         **kwargs: Kwargs for other options, like hour split, or year split
 
     Returns:
@@ -101,6 +103,22 @@ def compute_metrics(predictions: np.ndarray, target: np.ndarray, datetimes: np.n
     errors = common_error_metrics(predictions=predictions, target=target)
     errors.update(compute_error_part_of_day(predictions=predictions, target=target, datetimes=datetimes, **kwargs))
     errors.update(compute_error_part_of_year(predictions=predictions, target=target, datetimes=datetimes, **kwargs))
+
+    # Filter by night and run again
+    if filter_by_night:
+        day_predictions, day_target, day_datetime = filter_night(predictions=predictions,
+                                                                 target=target,
+                                                                 datetimes=datetimes,
+                                                                 latitude=kwargs.get("latitude"),
+                                                                 longitude=kwargs.get("longitude"),
+                                                                 sun_position_for_night=kwargs.get("sun_position_for_night", -5))
+        day_errors = common_error_metrics(predictions=day_predictions, target=day_target)
+        day_errors.update(compute_error_part_of_day(predictions=day_predictions, target=day_target, datetimes=day_datetime, **kwargs))
+        day_errors.update(compute_error_part_of_year(predictions=day_predictions, target=day_target, datetimes=day_datetime, **kwargs))
+        for key in day_errors.keys():
+            day_errors["no_night/" + key] = day_errors.pop(key)
+        errors.update(day_errors)
+
     for key in errors.keys():
         errors[tag+"/"+key] = errors.pop(key)
 
