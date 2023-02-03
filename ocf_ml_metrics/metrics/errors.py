@@ -1,8 +1,10 @@
 """Common metrics to compute"""
+from typing import Optional, Union
+
 import numpy as np
 import pandas as pd
+
 from ocf_ml_metrics.utils import filter_night
-from typing import Optional, Union
 
 
 def common_metrics(predictions: np.ndarray, target: np.ndarray, tag: str = "", **kwargs) -> dict:

@@ -1,5 +1,6 @@
 import numpy as np
-from ocf_ml_metrics.baselines.simple import zero_baseline, max_baseline, last_value_persistence
+
+from ocf_ml_metrics.baselines.simple import last_value_persistence, max_baseline, zero_baseline
 
 
 def test_zero_baseline():
