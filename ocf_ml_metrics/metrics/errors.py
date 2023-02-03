@@ -168,7 +168,7 @@ def count_large_errors(
 
     error_dict = {
         kwargs.get("tag", "")
-        + f"large_error_count_"
+        + "large_error_count_"
         + f"{'threshold' if threshold >= 0 else 'sigma'}_"
         + f"{threshold if threshold >= 0 else sigma}": large_error_count
     }
