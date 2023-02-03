@@ -37,7 +37,7 @@ def test_compute_metrics():
     errors = compute_metrics(predictions=predictions, target=target, datetimes=datetimes, filter_by_night=True, latitude=55.3781, longitude=0., sun_position_for_night=-5)
     assert len([key for key in errors if "no_night" in key]) == 27
     assert len([key for key in errors if "no_night" not in key]) == 27
-    assert len([key for key in errors if "Winter" in key]) == 6 # night/no_night and 3 errors
+    assert len([key for key in errors if "Winter" in key]) == 6 # night/no_night and 3 metrics each
     assert len([key for key in errors if "Summer" in key]) == 6
     assert len([key for key in errors if "Fall" in key]) == 6
     assert len([key for key in errors if "Spring" in key]) == 6
