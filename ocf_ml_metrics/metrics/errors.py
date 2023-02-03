@@ -116,11 +116,11 @@ def compute_metrics(predictions: np.ndarray, target: np.ndarray, datetimes: np.n
         day_errors = common_error_metrics(predictions=day_predictions, target=day_target)
         day_errors.update(compute_error_part_of_day(predictions=day_predictions, target=day_target, datetimes=day_datetime, **kwargs))
         day_errors.update(compute_error_part_of_year(predictions=day_predictions, target=day_target, datetimes=day_datetime, **kwargs))
-        for key in day_errors.keys():
+        for key in list(day_errors.keys()):
             day_errors["no_night/" + key] = day_errors.pop(key)
         errors.update(day_errors)
 
-    for key in errors.keys():
+    for key in list(errors.keys()):
         errors[tag+"/"+key] = errors.pop(key)
 
     return errors
