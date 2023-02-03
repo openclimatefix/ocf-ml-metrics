@@ -3,8 +3,8 @@ import pandas as pd
 from ocf_ml_metrics.utils import filter_night
 
 
-def common_error_metrics(
-    predictions: np.ndarray, target: np.ndarray, tag: str = "", **kwargs
+def common_metrics(
+        predictions: np.ndarray, target: np.ndarray, tag: str = "", **kwargs
 ) -> dict:
     """
     Common error metrics base
@@ -30,17 +30,17 @@ def common_error_metrics(
     return error_dict
 
 
-def compute_error_part_of_day(
-    predictions: np.ndarray,
-    target: np.ndarray,
-    datetimes: np.ndarray,
-    hour_split: dict = {
-        "Night": (21, 22, 23, 0, 1, 2, 3),
-        "Morning": (4, 5, 6, 7, 8, 9),
-        "Afternoon": (10, 11, 12, 13, 14, 15),
-        "Evening": (16, 17, 18, 19, 20),
-    },
-    **kwargs
+def compute_metrics_part_of_day(
+        predictions: np.ndarray,
+        target: np.ndarray,
+        datetimes: np.ndarray,
+        hour_split: dict = {
+            "Night": (21, 22, 23, 0, 1, 2, 3),
+            "Morning": (4, 5, 6, 7, 8, 9),
+            "Afternoon": (10, 11, 12, 13, 14, 15),
+            "Evening": (16, 17, 18, 19, 20),
+        },
+        **kwargs
 ) -> dict:
     """
     Compute error based on the time of day
@@ -54,28 +54,28 @@ def compute_error_part_of_day(
     Returns:
         Error dictionary based on the part of day
     """
-    errors = {}
+    metrics = {}
     for split, hours in hour_split.items():
         split_dates = np.asarray(
             [i for i, d in enumerate(datetimes) if pd.Timestamp(d).hour in hours]
         )
-        errors.update(
-            common_error_metrics(predictions[split_dates], target[split_dates], tag=split + "/")
+        metrics.update(
+            common_metrics(predictions[split_dates], target[split_dates], tag=split + "/")
         )
-    return errors
+    return metrics
 
 
-def compute_error_part_of_year(
-    predictions: np.ndarray,
-    target: np.ndarray,
-    datetimes: np.ndarray,
-    year_split: dict = {
-        "Winter": (11, 0, 1),
-        "Spring": (2, 3, 4),
-        "Summer": (5, 6, 7),
-        "Fall": (8, 9, 10),
-    },
-    **kwargs
+def compute_metrics_part_of_year(
+        predictions: np.ndarray,
+        target: np.ndarray,
+        datetimes: np.ndarray,
+        year_split: dict = {
+            "Winter": (11, 0, 1),
+            "Spring": (2, 3, 4),
+            "Summer": (5, 6, 7),
+            "Fall": (8, 9, 10),
+        },
+        **kwargs
 ) -> dict:
     """
     Compute error based on year split
@@ -89,30 +89,58 @@ def compute_error_part_of_year(
     Returns:
         Error based on the different times of year
     """
-    errors = {}
+    metrics = {}
     for split, months in year_split.items():
         split_dates = np.asarray(
             [i for i, d in enumerate(datetimes) if pd.Timestamp(d).month in months]
         )
-        errors.update(
-            common_error_metrics(predictions[split_dates], target[split_dates], tag=split + "/")
+        metrics.update(
+            common_metrics(predictions[split_dates], target[split_dates], tag=split + "/")
         )
-    return errors
+    return metrics
 
 
-def compute_large_errors(
-    predictions: np.ndarray, target: np.ndarray, threshold: float, sigma: float, **kwargs
+def compute_metrics_time_horizons(
+        predictions: np.ndarray,
+        target: np.ndarray,
+        datetimes: np.ndarray,
+        start_time: pd.Timestamp,
+        **kwargs
+) -> dict:
+    """
+    Compute error based on time horizons
+
+    Args:
+        predictions: Prediction array
+        target: Target array
+        datetimes: Datetimes of targets/predictions
+        start_time: Datetime of start time, to compute time deltas
+
+    Returns:
+        Error based on the different time horizons
+    """
+    metrics = {}
+    for i in range(len(datetimes)):
+        time_delta: pd.Timedelta = pd.Timestamp(datetimes[i]) - start_time
+        metrics.update(
+            common_metrics(predictions[i], target[i], tag=f"forecast_horizon_{time_delta.min}_minutes/")
+        )
+    return metrics
+
+
+def compute_large_metrics(
+        predictions: np.ndarray, target: np.ndarray, threshold: float, sigma: float, **kwargs
 ) -> dict:
     pass
 
 
 def compute_metrics(
-    predictions: np.ndarray,
-    target: np.ndarray,
-    datetimes: np.ndarray,
-    filter_by_night: bool = False,
-    tag: str = "",
-    **kwargs
+        predictions: np.ndarray,
+        target: np.ndarray,
+        datetimes: np.ndarray,
+        filter_by_night: bool = False,
+        tag: str = "",
+        **kwargs
 ) -> dict:
     """
     Convience function to compute all metrics
@@ -127,17 +155,22 @@ def compute_metrics(
         **kwargs: Kwargs for other options, like hour split, or year split
 
     Returns:
-        Dictionary of errors
+        Dictionary of metrics
     """
-    errors = common_error_metrics(predictions=predictions, target=target)
-    errors.update(
-        compute_error_part_of_day(
+    metrics = common_metrics(predictions=predictions, target=target)
+    metrics.update(
+        compute_metrics_part_of_day(
             predictions=predictions, target=target, datetimes=datetimes, **kwargs
         )
     )
-    errors.update(
-        compute_error_part_of_year(
+    metrics.update(
+        compute_metrics_part_of_year(
             predictions=predictions, target=target, datetimes=datetimes, **kwargs
+        )
+    )
+    metrics.update(
+        compute_metrics_time_horizons(
+            predictions=predictions, target=target, **kwargs
         )
     )
 
@@ -151,22 +184,27 @@ def compute_metrics(
             longitude=kwargs.get("longitude"),
             sun_position_for_night=kwargs.get("sun_position_for_night", -5),
         )
-        day_errors = common_error_metrics(predictions=day_predictions, target=day_target)
-        day_errors.update(
-            compute_error_part_of_day(
+        day_metrics = common_metrics(predictions=day_predictions, target=day_target)
+        day_metrics.update(
+            compute_metrics_part_of_day(
                 predictions=day_predictions, target=day_target, datetimes=day_datetime, **kwargs
             )
         )
-        day_errors.update(
-            compute_error_part_of_year(
+        day_metrics.update(
+            compute_metrics_part_of_year(
                 predictions=day_predictions, target=day_target, datetimes=day_datetime, **kwargs
             )
         )
-        for key in list(day_errors.keys()):
-            day_errors["no_night/" + key] = day_errors.pop(key)
-        errors.update(day_errors)
+        day_metrics.update(
+            compute_metrics_time_horizons(
+                predictions=day_predictions, target=day_target, **kwargs
+            )
+        )
+        for key in list(day_metrics.keys()):
+            day_metrics["no_night/" + key] = day_metrics.pop(key)
+        metrics.update(day_metrics)
 
-    for key in list(errors.keys()):
-        errors[tag + "/" + key] = errors.pop(key)
+    for key in list(metrics.keys()):
+        metrics[tag + "/" + key] = metrics.pop(key)
 
-    return errors
+    return metrics
