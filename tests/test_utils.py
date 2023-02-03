@@ -25,7 +25,7 @@ def test_filter_night_sun_multi_degrees():
     target = np.random.random((289, 1))
     latitude = 55.3781  # Center of UK according to Google
     longitude = 3.4360
-    datetimes = np.asarray(pd.date_range(start="2022-01-01 00:00", end="2022-01-02 00:00", freq="5min"))
+    datetimes = np.asarray(pd.date_range(start="2022-06-01 00:00", end="2022-06-02 00:00", freq="5min"))
     filtered_predictions, filtered_target, filtered_datetimes = filter_night(predictions=predictions, target=target,
                                                                              datetimes=datetimes, latitude=latitude,
                                                                              longitude=longitude,

@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from ocf_ml_metrics.utils import filter_night
 
 def common_error_metrics(predictions: np.ndarray, target: np.ndarray, tag: str = "", **kwargs) -> dict:
@@ -48,7 +49,7 @@ def compute_error_part_of_day(predictions: np.ndarray,
     """
     errors = {}
     for split, hours in hour_split.items():
-        split_dates = np.asarray([i for i, d in enumerate(datetimes) if d.hour in hours])
+        split_dates = np.asarray([i for i, d in enumerate(datetimes) if pd.Timestamp(d).hour in hours])
         errors.update(common_error_metrics(predictions[split_dates], target[split_dates], tag=split+"/"))
     return errors
 
@@ -75,7 +76,7 @@ def compute_error_part_of_year(predictions: np.ndarray,
     """
     errors = {}
     for split, months in year_split.items():
-        split_dates = np.asarray([i for i, d in enumerate(datetimes) if d.month in months])
+        split_dates = np.asarray([i for i, d in enumerate(datetimes) if pd.Timestamp(d).month in months])
         errors.update(common_error_metrics(predictions[split_dates], target[split_dates], tag=split+"/"))
     return errors
 
