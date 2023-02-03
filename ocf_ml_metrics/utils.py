@@ -1,3 +1,4 @@
+"""Utility functions"""
 import numpy as np
 from typing import Tuple
 import pvlib

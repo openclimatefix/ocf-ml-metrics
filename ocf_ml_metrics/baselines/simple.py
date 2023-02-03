@@ -1,3 +1,4 @@
+"""Simple baselines to use"""
 import numpy as np
 
 
