@@ -2,12 +2,15 @@ import numpy as np
 from typing import Tuple
 import pvlib
 
-def filter_night(predictions: np.ndarray,
-                 target: np.ndarray,
-                 datetimes: np.ndarray,
-                 latitude: np.ndarray,
-                 longitude: np.ndarray,
-                 sun_position_for_night: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+
+def filter_night(
+    predictions: np.ndarray,
+    target: np.ndarray,
+    datetimes: np.ndarray,
+    latitude: np.ndarray,
+    longitude: np.ndarray,
+    sun_position_for_night: float,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Filter the predictions and targets by night time
 

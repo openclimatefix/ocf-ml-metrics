@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def zero_baseline(predictions: np.ndarray) -> np.ndarray:
     """
     Baseline of predicting all 0's
@@ -25,6 +26,7 @@ def max_baseline(predictions: np.ndarray, max_capacity: float) -> np.ndarray:
         Array of all max capacity
     """
     return np.ones_like(predictions) * max_capacity
+
 
 def last_value_persistence(predictions: np.ndarray, last_value: float) -> np.ndarray:
     """
