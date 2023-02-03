@@ -38,7 +38,7 @@ def filter_night(predictions: np.ndarray,
         # https://midcdmz.nrel.gov/spa/
     )
     elevation_mask = solpos["elevation"] <= sun_position_for_night
-    predictions = predictions[elevation_mask]
-    target = target[elevation_mask]
-    datetimes = datetimes[elevation_mask]
+    predictions = predictions[~elevation_mask]
+    target = target[~elevation_mask]
+    datetimes = datetimes[~elevation_mask]
     return predictions, target, datetimes
