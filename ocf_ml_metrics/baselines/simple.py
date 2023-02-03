@@ -44,4 +44,13 @@ def last_value_persistence(predictions: np.ndarray, last_value: float) -> np.nda
 
 
 def last_day_persistence(predictions: np.ndarray):
+    """
+    Persistence by taking the vallues from the day before
+
+    Args:
+        predictions: Prediction array
+
+    Returns:
+        The last day persistence prediction
+    """
     return NotImplementedError("Last Day persistence has not been added yet")
