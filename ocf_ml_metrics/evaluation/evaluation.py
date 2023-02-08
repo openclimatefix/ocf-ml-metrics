@@ -1,10 +1,12 @@
 """ Evaluation the model results """
 
-import pandas as pd
 from typing import Union
+
+import pandas as pd
+
+from ocf_ml_metrics.baselines.simple import last_value_persistence, max_baseline, zero_baseline
 from ocf_ml_metrics.evaluation.utils import check_results_df
 from ocf_ml_metrics.metrics.errors import compute_metrics
-from ocf_ml_metrics.baselines.simple import zero_baseline, max_baseline, last_value_persistence
 
 
 def evaluation(
