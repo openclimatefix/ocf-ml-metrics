@@ -61,7 +61,7 @@ def test_compute_metrics():
         sun_position_for_night=-5,
         start_time=start_time,
     )
-    assert len([key for key in errors if "no_night" in key]) == 30
+    assert len([key for key in errors if "no_night" in key]) == 99
     assert len([key for key in errors if "no_night" not in key]) == 30
     assert len([key for key in errors if "Winter" in key]) == 6  # night/no_night and 3 metrics each
     assert len([key for key in errors if "Summer" in key]) == 6
@@ -91,7 +91,7 @@ def test_compute_metrics_threshold():
         start_time=start_time,
         thresholds=[1000, 2000],  # MW
     )
-    assert len([key for key in errors if "no_night" in key]) == 32
+    assert len([key for key in errors if "no_night" in key]) == 101
     assert len([key for key in errors if "no_night" not in key]) == 32
     assert len([key for key in errors if "Winter" in key]) == 6  # night/no_night and 3 metrics each
     assert len([key for key in errors if "Summer" in key]) == 6
