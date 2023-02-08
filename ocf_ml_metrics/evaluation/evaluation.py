@@ -40,7 +40,8 @@ def evaluation(
         sun_threshold_degrees_for_night: Sun elevation degrees which signifies 'night'
         error_thresholds: Thresholds, in MW for 'large errors'
         outturn_unit: Str for the units used in the evaluation, usually 'mw', 'kw', or 'w'
-        kwargs: Arguments for compute_metrics to pass through (time_of_year dict, hour_split dict, etc.)
+        kwargs: Arguments for compute_metrics to pass through
+            (time_of_year dict, hour_split dict, etc.)
 
     """
     # make sure datetimes columns datetimes and floor target time t to nearest 5-minutes
@@ -190,7 +191,8 @@ def evaluation_per_id(
         sun_threshold_degrees_for_night: Sun elevation degrees which signifies 'night'
         error_thresholds: Thresholds, in MW for 'large errors'
         outturn_unit: Str for the units used in the evaluation, usually 'mw', 'kw', or 'w'
-        kwargs: Arguments for compute_metrics to pass through (time_of_year dict, hour_split dict, etc.)
+        kwargs: Arguments for compute_metrics to pass through
+            (time_of_year dict, hour_split dict, etc.)
 
     """
     # make sure datetimes columns datetimes and floor target time t to nearest 5-minutes
