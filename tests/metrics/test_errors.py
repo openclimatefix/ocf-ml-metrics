@@ -50,7 +50,7 @@ def test_compute_metrics():
     )
     predictions = np.random.random((len(datetimes), 1))
     target = np.random.random((len(datetimes), 1))
-    start_time = np.random.random((len(datetimes), 1))
+    start_time = datetimes - pd.Timedelta("5min")
     errors = compute_metrics(
         predictions=predictions,
         target=target,
@@ -79,7 +79,7 @@ def test_compute_metrics_threshold():
     )
     predictions = np.random.random((len(datetimes), 1))
     target = np.random.random((len(datetimes), 1))
-    start_time = np.random.random((len(datetimes), 1))
+    start_time = datetimes - pd.Timedelta("5min")
     errors = compute_metrics(
         predictions=predictions,
         target=target,
