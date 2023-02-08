@@ -8,6 +8,7 @@ def check_results_df(results_df: pd.DataFrame, unit: str = "mw"):
 
     Args:
         results_df: results dataframe
+        unit: Unit to check for, usually 'mw', 'kw', or 'w'
 
     """
 
