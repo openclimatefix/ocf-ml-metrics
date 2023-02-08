@@ -50,6 +50,7 @@ def test_compute_metrics():
     )
     predictions = np.random.random((len(datetimes), 1))
     target = np.random.random((len(datetimes), 1))
+    start_time = np.random.random((len(datetimes), 1))
     errors = compute_metrics(
         predictions=predictions,
         target=target,
@@ -58,7 +59,7 @@ def test_compute_metrics():
         latitude=55.3781,
         longitude=0.0,
         sun_position_for_night=-5,
-        start_time=pd.Timestamp(datetimes[0]) - pd.Timedelta("5min"),
+        start_time=start_time,
     )
     assert len([key for key in errors if "no_night" in key]) == 30
     assert len([key for key in errors if "no_night" not in key]) == 30
@@ -78,6 +79,7 @@ def test_compute_metrics_threshold():
     )
     predictions = np.random.random((len(datetimes), 1))
     target = np.random.random((len(datetimes), 1))
+    start_time = np.random.random((len(datetimes), 1))
     errors = compute_metrics(
         predictions=predictions,
         target=target,
@@ -86,7 +88,7 @@ def test_compute_metrics_threshold():
         latitude=55.3781,
         longitude=0.0,
         sun_position_for_night=-5,
-        start_time=pd.Timestamp(datetimes[0]) - pd.Timedelta("5min"),
+        start_time=start_time,
         thresholds=[1000, 2000],  # MW
     )
     assert len([key for key in errors if "no_night" in key]) == 32

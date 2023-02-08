@@ -106,7 +106,7 @@ def compute_metrics_time_horizons(
     predictions: np.ndarray,
     target: np.ndarray,
     datetimes: np.ndarray,
-    start_time: pd.Timestamp,
+    start_time: np.ndarray,
     **kwargs,
 ) -> dict:
     """
@@ -116,14 +116,14 @@ def compute_metrics_time_horizons(
         predictions: Prediction array
         target: Target array
         datetimes: Datetimes of targets/predictions
-        start_time: Datetime of start time, to compute time deltas
+        start_time: Datetimes of start time, to compute time deltas
 
     Returns:
         Error based on the different time horizons
     """
     metrics = {}
     for i in range(len(datetimes)):
-        time_delta: pd.Timedelta = pd.Timestamp(datetimes[i]) - start_time
+        time_delta: pd.Timedelta = pd.Timestamp(datetimes[i]) - pd.Timestamp(start_time[i])
         metrics.update(
             common_metrics(
                 predictions[i], target[i], tag=f"forecast_horizon_{time_delta.min}_minutes/"
@@ -182,20 +182,20 @@ def compute_metrics(
     predictions: np.ndarray,
     target: np.ndarray,
     datetimes: np.ndarray,
-    start_time: pd.Timestamp,
+    start_time: np.ndarray,
     filter_by_night: bool = False,
     tag: str = "",
     thresholds: Optional[Union[list, float]] = -1,
     **kwargs,
 ) -> dict:
     """
-    Convience function to compute all metrics
+    Convenience function to compute all metrics
 
     Args:
         predictions: Prediction array
         target: Target array
         datetimes: Datetimes for the array
-        start_time: pd.Timestamp where predictions begin from,
+        start_time: Array where predictions begin from,
             where the forecast time horizon is measured from
         tag: Tag to use for overall (i.e. train/val/test)
         filter_by_night: Filter by night time as well and return metrics for only daytime,
@@ -207,6 +207,7 @@ def compute_metrics(
     Returns:
         Dictionary of metrics
     """
+    assert len(predictions) == len(target) == len(datetimes) == len(start_time), ValueError("Lens of prediction, target, datetime, and start times ")
     metrics = common_metrics(predictions=predictions, target=target)
     metrics.update(
         compute_metrics_part_of_day(

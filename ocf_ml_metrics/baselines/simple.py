@@ -2,7 +2,7 @@
 import numpy as np
 
 
-def zero_baseline(predictions: np.ndarray) -> np.ndarray:
+def zero_baseline(predictions: np.ndarray, **kwargs) -> np.ndarray:
     """
     Baseline of predicting all 0's
 
@@ -15,7 +15,7 @@ def zero_baseline(predictions: np.ndarray) -> np.ndarray:
     return np.zeros_like(predictions)
 
 
-def max_baseline(predictions: np.ndarray, max_capacity: float) -> np.ndarray:
+def max_baseline(predictions: np.ndarray, max_capacity: float, **kwargs) -> np.ndarray:
     """
     Baseline of predicting the maximum capacity for all timesteps
 
@@ -29,7 +29,7 @@ def max_baseline(predictions: np.ndarray, max_capacity: float) -> np.ndarray:
     return np.ones_like(predictions) * max_capacity
 
 
-def last_value_persistence(predictions: np.ndarray, last_value: float) -> np.ndarray:
+def last_value_persistence(predictions: np.ndarray, last_value: float, **kwargs) -> np.ndarray:
     """
     Baseline of predicting the last value for all future timesteps
 

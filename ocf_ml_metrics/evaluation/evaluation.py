@@ -4,6 +4,7 @@ import pandas as pd
 from typing import Union
 from ocf_ml_metrics.evaluation.utils import check_results_df
 from ocf_ml_metrics.metrics.errors import compute_metrics
+from ocf_ml_metrics.baselines.simple import zero_baseline, max_baseline, last_value_persistence
 
 
 def evaluation(
@@ -13,7 +14,7 @@ def evaluation(
     error_thresholds: Union[float, int, list] = [1000, 2000],
     outturn_unit: str = "mw",
     **kwargs,
-):
+) -> dict:
     """
     Main evaluation method
 
@@ -24,6 +25,7 @@ def evaluation(
     Args:
         results_df: results dataframe. This should have the following columns:
             - t0_datetime_utc
+            - t0_actual_pv_outturn_[unit]
             - target_datetime_utc
             - forecast_pv_outturn_[unit]
             - actual_pv_outturn_[unit]
@@ -36,6 +38,7 @@ def evaluation(
         sun_threshold_degrees_for_night: Sun elevation degrees which signifies 'night'
         error_thresholds: Thresholds, in MW for 'large errors'
         outturn_unit: Str for the units used in the evaluation, usually 'mw', 'kw', or 'w'
+        kwargs: Arguments for compute_metrics to pass through (time_of_year dict, hour_split dict, etc.)
 
     """
     # make sure datetimes columns datetimes and floor target time t to nearest 5-minutes
@@ -62,9 +65,10 @@ def evaluation(
         longitude=longitude,
         sun_position_for_night=sun_threshold_degrees_for_night,
         thresholds=error_thresholds,
-        tag= f"{model_name}/" + results_df["id"] + f"/{outturn_unit}",
+        tag=f"{model_name}/" + results_df["id"] + f"/{outturn_unit}",
         filter_by_night=True,
-        start_time=pd.Timestamp(results_df["t0_datetime_utc"]),
+        start_time=results_df["t0_datetime_utc"],
+        **kwargs
     )
 
     # Calculate metrics on normalized outputs
@@ -78,11 +82,54 @@ def evaluation(
             longitude=longitude,
             sun_position_for_night=sun_threshold_degrees_for_night,
             thresholds=error_thresholds / capacity,
-            tag=f"{model_name}/" +results_df["id"] + "/normalized",
+            tag=f"{model_name}/" + results_df["id"] + "/normalized",
             filter_by_night=True,
-            start_time=pd.Timestamp(results_df["t0_datetime_utc"]),
+            start_time=results_df["t0_datetime_utc"],
+            **kwargs
         )
     )
 
-    # Metrics now contains all results, both normalized and raw
+    # Calculate simple metrics baselines
+    t0_outturn = results_df[f"t0_actual_pv_outturn_{outturn_unit}"]
+    for baseline_name, baseline in [("zero_baseline", zero_baseline), ("max_baseline", max_baseline), ("last_value_persistence_baseline", last_value_persistence)]:
+        metrics.update(compute_metrics(
+            predictions=baseline(predictions=predictions, max_value=capacity, last_value=t0_outturn),
+            target=target,
+            datetimes=datetimes,
+            latitude=latitude,
+            longitude=longitude,
+            sun_position_for_night=sun_threshold_degrees_for_night,
+            thresholds=error_thresholds,
+            tag=f"{baseline_name}/" + results_df["id"] + f"/{outturn_unit}",
+            filter_by_night=True,
+            start_time=results_df["t0_datetime_utc"],
+            **kwargs
+        ))
 
+        # Calculate metrics on normalized outputs
+        capacity = results_df[f"capacity_{outturn_unit}p"]
+        metrics.update(
+            compute_metrics(
+                predictions=baseline(predictions=predictions / capacity, max_value=capacity / capacity, last_value=t0_outturn / capacity),
+                target=target / capacity,
+                datetimes=datetimes,
+                latitude=latitude,
+                longitude=longitude,
+                sun_position_for_night=sun_threshold_degrees_for_night,
+                thresholds=error_thresholds / capacity,
+                tag=f"{baseline_name}/" + results_df["id"] + "/normalized",
+                filter_by_night=True,
+                start_time=results_df["t0_datetime_utc"],
+                **kwargs
+            )
+        )
+
+
+    # Metrics now contains all results, both normalized and raw
+    # This should be returned as 2 pandas dataframe so it can be written as CSV somewhere
+    # Output 1 is single forecast error metrics
+    # Output 2 is summarized forecast errors (hour, time of year, etc.)
+    # Output should be t0,forecast_time,forecast_error1-3,error vs baseline1-3
+
+
+    return metrics
