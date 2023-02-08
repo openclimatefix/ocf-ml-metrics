@@ -61,9 +61,10 @@ def compute_metrics_part_of_day(
         split_dates = np.asarray(
             [i for i, d in enumerate(datetimes) if pd.Timestamp(d).hour in hours]
         )
-        metrics.update(
-            common_metrics(predictions[split_dates], target[split_dates], tag=split + "/")
-        )
+        if len(split_dates) > 0:
+            metrics.update(
+                common_metrics(predictions[split_dates], target[split_dates], tag=split + "/")
+            )
     return metrics
 
 
@@ -96,9 +97,10 @@ def compute_metrics_part_of_year(
         split_dates = np.asarray(
             [i for i, d in enumerate(datetimes) if pd.Timestamp(d).month in months]
         )
-        metrics.update(
-            common_metrics(predictions[split_dates], target[split_dates], tag=split + "/")
-        )
+        if len(split_dates) > 0:
+            metrics.update(
+                common_metrics(predictions[split_dates], target[split_dates], tag=split + "/")
+            )
     return metrics
 
 
@@ -126,7 +128,9 @@ def compute_metrics_time_horizons(
         time_delta: pd.Timedelta = pd.Timestamp(datetimes[i]) - pd.Timestamp(start_time[i])
         metrics.update(
             common_metrics(
-                predictions[i], target[i], tag=f"forecast_horizon_{time_delta.min}_minutes/"
+                predictions[i],
+                target[i],
+                tag=f"forecast_horizon_{time_delta.seconds // 60}_minutes/",
             )
         )
     return metrics

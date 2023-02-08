@@ -53,11 +53,11 @@ def evaluation(
     check_results_df(results_df, unit=outturn_unit)
 
     # Get component parts needed for compute metrics
-    predictions = results_df[f"forecast_pv_outturn_{outturn_unit}"]
-    target = results_df[f"actual_pv_outturn_{outturn_unit}"]
-    datetimes = results_df["target_datetime_utc"]
-    latitude = results_df["latitude"]
-    longitude = results_df["longitude"]
+    predictions = results_df[f"forecast_pv_outturn_{outturn_unit}"].to_numpy()
+    target = results_df[f"actual_pv_outturn_{outturn_unit}"].to_numpy()
+    datetimes = results_df["target_datetime_utc"].to_numpy()
+    latitude = results_df["latitude"].to_numpy()
+    longitude = results_df["longitude"].to_numpy()
 
     # Calculate metrics on raw outputs
     metrics = compute_metrics(
@@ -70,12 +70,12 @@ def evaluation(
         thresholds=error_thresholds,
         tag=f"{model_name}" + f"/{outturn_unit}",
         filter_by_night=True,
-        start_time=results_df["t0_datetime_utc"],
+        start_time=results_df["t0_datetime_utc"].to_numpy(),
         **kwargs,
     )
 
     # Calculate metrics on normalized outputs
-    capacity = results_df[f"capacity_{outturn_unit}p"]
+    capacity = results_df[f"capacity_{outturn_unit}p"].to_numpy()
     metrics.update(
         compute_metrics(
             predictions=predictions / capacity,
@@ -84,16 +84,16 @@ def evaluation(
             latitude=latitude,
             longitude=longitude,
             sun_position_for_night=sun_threshold_degrees_for_night,
-            thresholds=error_thresholds / capacity,
+            thresholds=error_thresholds,
             tag=f"{model_name}" + "/normalized",
             filter_by_night=True,
-            start_time=results_df["t0_datetime_utc"],
+            start_time=results_df["t0_datetime_utc"].to_numpy(),
             **kwargs,
         )
     )
 
     # Calculate simple metrics baselines
-    t0_outturn = results_df[f"t0_actual_pv_outturn_{outturn_unit}"]
+    t0_outturn = results_df[f"t0_actual_pv_outturn_{outturn_unit}"].to_numpy()
     for baseline_name, baseline in [
         ("zero_baseline", zero_baseline),
         ("max_baseline", max_baseline),
@@ -102,7 +102,7 @@ def evaluation(
         metrics.update(
             compute_metrics(
                 predictions=baseline(
-                    predictions=predictions, max_value=capacity, last_value=t0_outturn
+                    predictions=predictions, max_capacity=capacity, last_value=t0_outturn
                 ),
                 target=target,
                 datetimes=datetimes,
@@ -112,18 +112,18 @@ def evaluation(
                 thresholds=error_thresholds,
                 tag=f"{baseline_name}" + f"/{outturn_unit}",
                 filter_by_night=True,
-                start_time=results_df["t0_datetime_utc"],
+                start_time=results_df["t0_datetime_utc"].to_numpy(),
                 **kwargs,
             )
         )
 
         # Calculate metrics on normalized outputs
-        capacity = results_df[f"capacity_{outturn_unit}p"]
+        capacity = results_df[f"capacity_{outturn_unit}p"].to_numpy()
         metrics.update(
             compute_metrics(
                 predictions=baseline(
                     predictions=predictions / capacity,
-                    max_value=capacity / capacity,
+                    max_capacity=capacity / capacity,
                     last_value=t0_outturn / capacity,
                 ),
                 target=target / capacity,
@@ -131,10 +131,10 @@ def evaluation(
                 latitude=latitude,
                 longitude=longitude,
                 sun_position_for_night=sun_threshold_degrees_for_night,
-                thresholds=error_thresholds / capacity,
+                thresholds=error_thresholds,
                 tag=f"{baseline_name}" + "/normalized",
                 filter_by_night=True,
-                start_time=results_df["t0_datetime_utc"],
+                start_time=results_df["t0_datetime_utc"].to_numpy(),
                 **kwargs,
             )
         )
@@ -208,11 +208,11 @@ def evaluation_per_id(
     for id in results_df["id"]:
         per_id_df = results_df.loc[results_df["id"] == id]
         # Get component parts needed for compute metrics
-        predictions = per_id_df[f"forecast_pv_outturn_{outturn_unit}"]
-        target = per_id_df[f"actual_pv_outturn_{outturn_unit}"]
-        datetimes = per_id_df["target_datetime_utc"]
-        latitude = per_id_df["latitude"]
-        longitude = per_id_df["longitude"]
+        predictions = per_id_df[f"forecast_pv_outturn_{outturn_unit}"].to_numpy()
+        target = per_id_df[f"actual_pv_outturn_{outturn_unit}"].to_numpy()
+        datetimes = per_id_df["target_datetime_utc"].to_numpy()
+        latitude = per_id_df["latitude"].to_numpy()
+        longitude = per_id_df["longitude"].to_numpy()
 
         # Calculate metrics on raw outputs
         metrics.update(
@@ -224,15 +224,15 @@ def evaluation_per_id(
                 longitude=longitude,
                 sun_position_for_night=sun_threshold_degrees_for_night,
                 thresholds=error_thresholds,
-                tag=f"{model_name}/" + str(id) + f"/{outturn_unit}",
+                tag=f"{model_name}/" + f"id_{id}" + f"/{outturn_unit}",
                 filter_by_night=True,
-                start_time=per_id_df["t0_datetime_utc"],
+                start_time=per_id_df["t0_datetime_utc"].to_numpy(),
                 **kwargs,
             )
         )
 
         # Calculate metrics on normalized outputs
-        capacity = per_id_df[f"capacity_{outturn_unit}p"]
+        capacity = per_id_df[f"capacity_{outturn_unit}p"].to_numpy()
         metrics.update(
             compute_metrics(
                 predictions=predictions / capacity,
@@ -241,16 +241,16 @@ def evaluation_per_id(
                 latitude=latitude,
                 longitude=longitude,
                 sun_position_for_night=sun_threshold_degrees_for_night,
-                thresholds=error_thresholds / capacity,
-                tag=f"{model_name}/" + str(id) + "/normalized",
+                thresholds=error_thresholds,
+                tag=f"{model_name}/" + f"id_{id}" + "/normalized",
                 filter_by_night=True,
-                start_time=per_id_df["t0_datetime_utc"],
+                start_time=per_id_df["t0_datetime_utc"].to_numpy(),
                 **kwargs,
             )
         )
 
         # Calculate simple metrics baselines
-        t0_outturn = per_id_df[f"t0_actual_pv_outturn_{outturn_unit}"]
+        t0_outturn = per_id_df[f"t0_actual_pv_outturn_{outturn_unit}"].to_numpy()
         for baseline_name, baseline in [
             ("zero_baseline", zero_baseline),
             ("max_baseline", max_baseline),
@@ -259,7 +259,7 @@ def evaluation_per_id(
             metrics.update(
                 compute_metrics(
                     predictions=baseline(
-                        predictions=predictions, max_value=capacity, last_value=t0_outturn
+                        predictions=predictions, max_capacity=capacity, last_value=t0_outturn
                     ),
                     target=target,
                     datetimes=datetimes,
@@ -267,20 +267,20 @@ def evaluation_per_id(
                     longitude=longitude,
                     sun_position_for_night=sun_threshold_degrees_for_night,
                     thresholds=error_thresholds,
-                    tag=f"{baseline_name}/" + str(id) + f"/{outturn_unit}",
+                    tag=f"{baseline_name}/" + f"id_{id}" + f"/{outturn_unit}",
                     filter_by_night=True,
-                    start_time=per_id_df["t0_datetime_utc"],
+                    start_time=per_id_df["t0_datetime_utc"].to_numpy(),
                     **kwargs,
                 )
             )
 
             # Calculate metrics on normalized outputs
-            capacity = per_id_df[f"capacity_{outturn_unit}p"]
+            capacity = per_id_df[f"capacity_{outturn_unit}p"].to_numpy()
             metrics.update(
                 compute_metrics(
                     predictions=baseline(
                         predictions=predictions / capacity,
-                        max_value=capacity / capacity,
+                        max_capacity=capacity / capacity,
                         last_value=t0_outturn / capacity,
                     ),
                     target=target / capacity,
@@ -288,10 +288,10 @@ def evaluation_per_id(
                     latitude=latitude,
                     longitude=longitude,
                     sun_position_for_night=sun_threshold_degrees_for_night,
-                    thresholds=error_thresholds / capacity,
-                    tag=f"{baseline_name}/" + str(id) + "/normalized",
+                    thresholds=error_thresholds,
+                    tag=f"{baseline_name}/" + f"id_{id}" + "/normalized",
                     filter_by_night=True,
-                    start_time=per_id_df["t0_datetime_utc"],
+                    start_time=per_id_df["t0_datetime_utc"].to_numpy(),
                     **kwargs,
                 )
             )
