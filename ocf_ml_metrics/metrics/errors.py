@@ -207,7 +207,9 @@ def compute_metrics(
     Returns:
         Dictionary of metrics
     """
-    assert len(predictions) == len(target) == len(datetimes) == len(start_time), ValueError("Lens of prediction, target, datetime, and start times ")
+    assert len(predictions) == len(target) == len(datetimes) == len(start_time), ValueError(
+        "Lens of prediction, target, datetime, and start times "
+    )
     metrics = common_metrics(predictions=predictions, target=target)
     metrics.update(
         compute_metrics_part_of_day(
