@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from ocf_ml_metrics.utils import filter_night
+from ocf_ml_metrics.metrics.utils import filter_night
 
 
 def test_filter_night_sun_0_degrees():
