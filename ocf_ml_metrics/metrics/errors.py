@@ -73,10 +73,10 @@ def compute_metrics_part_of_year(
     target: np.ndarray,
     datetimes: np.ndarray,
     year_split: dict = {
-        "Winter": (11, 0, 1),
-        "Spring": (2, 3, 4),
-        "Summer": (5, 6, 7),
-        "Fall": (8, 9, 10),
+        "Winter": (12, 1, 2),
+        "Spring": (3, 4, 5),
+        "Summer": (6, 7, 8),
+        "Fall": (9, 10, 11),
     },
     **kwargs,
 ) -> dict:
