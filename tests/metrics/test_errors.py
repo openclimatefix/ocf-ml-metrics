@@ -1,5 +1,3 @@
-from typing import Final
-
 import numpy as np
 import pandas as pd
 
@@ -9,8 +7,7 @@ from ocf_ml_metrics.metrics.errors import (
     compute_metrics_part_of_day,
     compute_metrics_part_of_year,
 )
-
-N_METRICS: Final[int] = 2  # mae and rmse
+from tests.consts_for_tests import N_METRICS
 
 
 def test_common_error_metrics():
