@@ -19,16 +19,29 @@ def test_common_error_metrics():
 
 
 def test_compute_error_part_of_year():
-    predictions = np.random.random((12, 1))
-    target = np.random.random((12, 1))
+    predictions = np.zeros((12, 1))
+
+    # Set up different errors for different seasons, so we can check that the
+    # code under test correctly slices up the seasons.
+    target = np.zeros((12, 1))
+    target[[11, 0, 1]] = 1  # Winter
+    target[[2, 3, 4]] = 2  # Spring
+    target[[5, 6, 7]] = 3  # Summer
+    target[[8, 9, 10]] = 4  # Fall
+
     datetimes = np.asarray(
         pd.date_range(start="2022-01-01 00:00", end="2022-12-31 00:00", freq="1M")
     )
+    assert len(datetimes) == 12
     errors = compute_metrics_part_of_year(
         predictions=predictions, target=target, datetimes=datetimes
     )
     for key in errors.keys():
         assert "Winter" in key or "Summer" in key or "Fall" in key or "Spring" in key
+
+    expected_errors = {"Winter/mae": 1, "Spring/mae": 2, "Summer/mae": 3, "Fall/mae": 4}
+    for key, err in expected_errors.items():
+        np.testing.assert_almost_equal(errors[key], err, err_msg=f"{key} is incorrect!")
 
 
 def test_compute_error_part_of_day():
