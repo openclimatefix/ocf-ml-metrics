@@ -27,4 +27,4 @@ def test_evaluation():
         }
     )
     metrics = evaluation(results_df=results_df, model_name="test")
-    assert len(metrics.keys()) == 600  # Lots of metrics
+    assert len(metrics.keys()) == 432  # Lots of metrics
