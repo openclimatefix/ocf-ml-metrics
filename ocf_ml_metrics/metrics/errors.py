@@ -15,9 +15,10 @@ def common_metrics(predictions: np.ndarray, target: np.ndarray, tag: str = "", *
     normalize both the predictions and target before passing them into this function.
 
     Args:
-        predictions: Predictions for the given time period
-        target: Ground truth to compare against, or output from baseline model
-        tag: Tag to add to the dictionary keys, if wanted
+        predictions: Predictions for the given time period.
+        target: Ground truth to compare against, or output from baseline model.
+        tag: Tag to add to the dictionary keys, if wanted.
+        kwargs: Not used.
 
     Returns:
         Dictionary of error metrics computed over the given data.
@@ -34,26 +35,30 @@ def compute_metrics_part_of_day(
     predictions: np.ndarray,
     target: np.ndarray,
     datetimes: np.ndarray,
-    hour_split: dict = {
-        "Night": (21, 22, 23, 0, 1, 2, 3),
-        "Morning": (4, 5, 6, 7, 8, 9),
-        "Afternoon": (10, 11, 12, 13, 14, 15),
-        "Evening": (16, 17, 18, 19, 20),
-    },
+    hour_split: Optional[dict[str, tuple[int, ...]]] = None,
     **kwargs,
 ) -> dict:
     """
-    Compute error based on the time of day
+    Compute error based on the time of day.
 
     Args:
-        predictions: Prediction Array
-        target: Target array
-        datetimes: Array of datetimes
-        hour_split: Hour split
+        predictions: Prediction Array.
+        target: Target array.
+        datetimes: Array of datetimes.
+        hour_split: Hour split. If None then a sensible default will be used.
+        kwargs: Not used.
 
     Returns:
-        Error dictionary based on the part of day
+        Error dictionary based on the part of day.
     """
+    if hour_split is None:
+        hour_split = {
+            "Night": (21, 22, 23, 0, 1, 2, 3),
+            "Morning": (4, 5, 6, 7, 8, 9),
+            "Afternoon": (10, 11, 12, 13, 14, 15),
+            "Evening": (16, 17, 18, 19, 20),
+        }
+
     metrics = {}
     for split, hours in hour_split.items():
         split_dates = np.asarray(
@@ -70,26 +75,30 @@ def compute_metrics_part_of_year(
     predictions: np.ndarray,
     target: np.ndarray,
     datetimes: np.ndarray,
-    year_split: dict = {
-        "Winter": (12, 1, 2),
-        "Spring": (3, 4, 5),
-        "Summer": (6, 7, 8),
-        "Fall": (9, 10, 11),
-    },
+    year_split: Optional[dict[str, tuple[int, ...]]] = None,
     **kwargs,
 ) -> dict:
     """
-    Compute error based on year split
+    Compute error based on year split.
 
     Args:
-        predictions: Prediction array
-        target: Target array
-        datetimes: Datetimes of targets/predictions
-        year_split: How to split the year
+        predictions: Prediction array.
+        target: Target array.
+        datetimes: Datetimes of targets/predictions.
+        year_split: How to split the year. If None then a sensible default will be used.
+        kwargs: Not used.
 
     Returns:
-        Error based on the different times of year
+        Error based on the different times of year.
     """
+    if year_split is None:
+        year_split = {
+            "Winter": (12, 1, 2),
+            "Spring": (3, 4, 5),
+            "Summer": (6, 7, 8),
+            "Fall": (9, 10, 11),
+        }
+
     metrics = {}
     for split, months in year_split.items():
         split_dates = np.asarray(
@@ -110,16 +119,17 @@ def compute_metrics_time_horizons(
     **kwargs,
 ) -> dict:
     """
-    Compute error based on time horizons
+    Compute error based on time horizons.
 
     Args:
-        predictions: Prediction array
-        target: Target array
-        datetimes: Datetimes of targets/predictions
-        start_time: Datetimes of start time, to compute time deltas
+        predictions: Prediction array.
+        target: Target array.
+        datetimes: Datetimes of targets/predictions.
+        start_time: Datetimes of start time, to compute time deltas.
+        kwargs: Not used.
 
     Returns:
-        Error based on the different time horizons
+        Error based on the different time horizons.
     """
     metrics = {}
     for i in range(len(datetimes)):
@@ -142,19 +152,19 @@ def count_large_errors(
     **kwargs,
 ) -> dict:
     """
-    Count large errors in forecast
+    Count large errors in forecast.
 
     Args:
-        predictions: Prediction array
-        target: Target array
+        predictions: Prediction array.
+        target: Target array.
         threshold: Threshold in absolute value, if >= 0,
-            only one of threshold or sigma can be set
+            only one of threshold or sigma can be set.
         sigma: Sigma level for which counts as a large error, if >= 0
-            only one of threshold or sigma can be set
-        **kwargs:
+            only one of threshold or sigma can be set.
+        **kwargs: Only the 'tag' key is used. 'tag' is optional.
 
     Returns:
-        Error dictionary with the counts of the large errors
+        Error dictionary with the counts of the large errors.
     """
     if threshold >= 0:
         assert sigma < 0, ValueError("Cannot set both sigma and threshold")
@@ -187,24 +197,24 @@ def compute_metrics(
     start_time: np.ndarray,
     filter_by_night: bool = False,
     tag: str = "",
-    thresholds: Optional[Union[list, float]] = -1,
+    thresholds: Union[list, float] = -1,
     **kwargs,
 ) -> dict:
     """
-    Convenience function to compute all metrics
+    Convenience function to compute all metrics.
 
     Args:
-        predictions: Prediction array
-        target: Target array
-        datetimes: Datetimes for the array
+        predictions: Prediction array.
+        target: Target array.
+        datetimes: Datetimes for the array.
         start_time: Array where predictions begin from,
-            where the forecast time horizon is measured from
-        tag: Tag to use for overall (i.e. train/val/test)
+            where the forecast time horizon is measured from.
+        tag: Tag to use for overall (i.e. train/val/test).
         filter_by_night: Filter by night time as well and return metrics for only daytime,
-            requires 'latitude'm 'longitude', and 'sun_position_for_night' kwargs
+            requires 'latitude'm 'longitude', and 'sun_position_for_night' kwargs.
         thresholds: Thresholds for computing large errors (i.e. what defines large)
-            can be list of thresholds, or a single one. None are calculated by default
-        **kwargs: Kwargs for other options, like hour split, or year split
+            can be list of thresholds, or a single one. None are calculated by default.
+        **kwargs: Kwargs for other options, like hour split, or year split.
 
     Returns:
         Dictionary of metrics
