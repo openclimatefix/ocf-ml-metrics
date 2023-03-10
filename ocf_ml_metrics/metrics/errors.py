@@ -9,9 +9,10 @@ from ocf_ml_metrics.metrics.utils import filter_night
 
 def common_metrics(predictions: np.ndarray, target: np.ndarray, tag: str = "", **kwargs) -> dict:
     """
-    Common error metrics base
+    Common error metrics.
 
-    Computes RMSE, NMAE, MAE for
+    Computes RMSE and MAE. If you'd like to compute the normalized MAE (NMAE), then please
+    normalize both the predictions and target before passing them into this function.
 
     Args:
         predictions: Predictions for the given time period
@@ -19,15 +20,12 @@ def common_metrics(predictions: np.ndarray, target: np.ndarray, tag: str = "", *
         tag: Tag to add to the dictionary keys, if wanted
 
     Returns:
-        Dictionary of error metrics compute over the given data
+        Dictionary of error metrics computed over the given data.
     """
     error_dict = {}
 
-    error_dict[tag + "nmae"] = np.mean(np.abs(predictions - target))
-    error_dict[tag + "mae"] = np.mean(np.square(predictions - target))
+    error_dict[tag + "mae"] = np.mean(np.abs(predictions - target))
     error_dict[tag + "rmse"] = np.sqrt(np.mean(np.square(predictions - target)))
-
-    # Now per timestep
 
     return error_dict
 

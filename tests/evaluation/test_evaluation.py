@@ -1,6 +1,7 @@
 import pandas as pd
 
 from ocf_ml_metrics.evaluation.evaluation import evaluation
+from tests.consts_for_tests import N_METRICS
 
 
 def test_evaluation():
@@ -27,4 +28,4 @@ def test_evaluation():
         }
     )
     metrics = evaluation(results_df=results_df, model_name="test")
-    assert len(metrics.keys()) == 600  # Lots of metrics
+    assert len(metrics.keys()) == 216 * N_METRICS  # Lots of metrics

@@ -7,13 +7,14 @@ from ocf_ml_metrics.metrics.errors import (
     compute_metrics_part_of_day,
     compute_metrics_part_of_year,
 )
+from tests.consts_for_tests import N_METRICS
 
 
 def test_common_error_metrics():
     predictions = np.random.random((288, 1))
     target = np.random.random((288, 1))
     errors = common_metrics(predictions=predictions, target=target)
-    for key in ["nmae", "mae", "rmse"]:
+    for key in ["mae", "rmse"]:
         assert key in errors.keys()
         assert isinstance(errors[key], float)
 
@@ -74,16 +75,18 @@ def test_compute_metrics():
         sun_position_for_night=-5,
         start_time=start_time,
     )
-    assert len([key for key in errors if "no_night" in key]) == 99
-    assert len([key for key in errors if "no_night" not in key]) == 30
-    assert len([key for key in errors if "Winter" in key]) == 6  # night/no_night and 3 metrics each
-    assert len([key for key in errors if "Summer" in key]) == 6
-    assert len([key for key in errors if "Fall" in key]) == 6
-    assert len([key for key in errors if "Spring" in key]) == 6
-    assert len([key for key in errors if "Morning" in key]) == 6
-    assert len([key for key in errors if "Afternoon" in key]) == 6
-    assert len([key for key in errors if "Evening" in key]) == 6
-    assert len([key for key in errors if "Night" in key]) == 6
+    assert len([key for key in errors if "no_night" in key]) == 33 * N_METRICS
+    assert len([key for key in errors if "no_night" not in key]) == 10 * N_METRICS
+    assert (
+        len([key for key in errors if "Winter" in key]) == 2 * N_METRICS
+    )  # night/no_night and 2 metrics each
+    assert len([key for key in errors if "Summer" in key]) == 2 * N_METRICS
+    assert len([key for key in errors if "Fall" in key]) == 2 * N_METRICS
+    assert len([key for key in errors if "Spring" in key]) == 2 * N_METRICS
+    assert len([key for key in errors if "Morning" in key]) == 2 * N_METRICS
+    assert len([key for key in errors if "Afternoon" in key]) == 2 * N_METRICS
+    assert len([key for key in errors if "Evening" in key]) == 2 * N_METRICS
+    assert len([key for key in errors if "Night" in key]) == 2 * N_METRICS
 
 
 def test_compute_metrics_threshold():
@@ -104,13 +107,15 @@ def test_compute_metrics_threshold():
         start_time=start_time,
         thresholds=[1000, 2000],  # MW
     )
-    assert len([key for key in errors if "no_night" in key]) == 101
-    assert len([key for key in errors if "no_night" not in key]) == 32
-    assert len([key for key in errors if "Winter" in key]) == 6  # night/no_night and 3 metrics each
-    assert len([key for key in errors if "Summer" in key]) == 6
-    assert len([key for key in errors if "Fall" in key]) == 6
-    assert len([key for key in errors if "Spring" in key]) == 6
-    assert len([key for key in errors if "Morning" in key]) == 6
-    assert len([key for key in errors if "Afternoon" in key]) == 6
-    assert len([key for key in errors if "Evening" in key]) == 6
-    assert len([key for key in errors if "Night" in key]) == 6
+    assert len([key for key in errors if "no_night" in key]) == 34 * N_METRICS
+    assert len([key for key in errors if "no_night" not in key]) == 11 * N_METRICS
+    assert (
+        len([key for key in errors if "Winter" in key]) == 2 * N_METRICS
+    )  # night/no_night and 2 metrics each
+    assert len([key for key in errors if "Summer" in key]) == 2 * N_METRICS
+    assert len([key for key in errors if "Fall" in key]) == 2 * N_METRICS
+    assert len([key for key in errors if "Spring" in key]) == 2 * N_METRICS
+    assert len([key for key in errors if "Morning" in key]) == 2 * N_METRICS
+    assert len([key for key in errors if "Afternoon" in key]) == 2 * N_METRICS
+    assert len([key for key in errors if "Evening" in key]) == 2 * N_METRICS
+    assert len([key for key in errors if "Night" in key]) == 2 * N_METRICS
