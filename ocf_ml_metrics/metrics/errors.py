@@ -51,6 +51,8 @@ def compute_metrics_part_of_day(
     Returns:
         Error dictionary based on the part of day.
     """
+    print('Making common metrics part of the day')
+
     if hour_split is None:
         hour_split = {
             "Night": (21, 22, 23, 0, 1, 2, 3),
@@ -91,6 +93,7 @@ def compute_metrics_part_of_year(
     Returns:
         Error based on the different times of year.
     """
+    print('Making common metrics part of the year')
     if year_split is None:
         year_split = {
             "Winter": (12, 1, 2),
@@ -131,6 +134,7 @@ def compute_metrics_time_horizons(
     Returns:
         Error based on the different time horizons.
     """
+    print('Making common metrics time horizons')
     metrics = {}
     for i in range(len(datetimes)):
         time_delta: pd.Timedelta = pd.Timestamp(datetimes[i]) - pd.Timestamp(start_time[i])
@@ -254,6 +258,7 @@ def compute_metrics(
 
     # Filter by night and run again
     if filter_by_night:
+        print('Filtering by night')
         day_predictions, day_target, day_datetime = filter_night(
             predictions=predictions,
             target=target,
