@@ -24,9 +24,16 @@ def common_metrics(predictions: np.ndarray, target: np.ndarray, tag: str = "", *
         Dictionary of error metrics computed over the given data.
     """
     error_dict = {}
+    
+    def _mean(input):
+        # 2+ dimensional input - compute mean but preserve 0th dimension, yields 1-d ndarray
+        if len(predictions.shape) > 1:
+            return np.mean(input, axis=0)
+        else:
+            return np.mean(input)
 
-    error_dict[tag + "mae"] = np.mean(np.abs(predictions - target))
-    error_dict[tag + "rmse"] = np.sqrt(np.mean(np.square(predictions - target)))
+    error_dict[tag + "mae"] = _mean(np.abs(predictions - target))
+    error_dict[tag + "rmse"] = np.sqrt(_mean(np.square(predictions - target)))
 
     return error_dict
 
