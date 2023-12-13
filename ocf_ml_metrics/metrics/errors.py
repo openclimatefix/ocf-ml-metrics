@@ -24,7 +24,7 @@ def common_metrics(predictions: np.ndarray, target: np.ndarray, tag: str = "", *
         Dictionary of error metrics computed over the given data.
     """
     error_dict = {}
-    
+
     def _mean(input):
         # 2+ dimensional input - compute mean but preserve 0th dimension, yields 1-d ndarray
         if len(predictions.shape) > 1:

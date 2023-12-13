@@ -17,8 +17,8 @@ def test_common_error_metrics_1d_input():
     for key in ["mae", "rmse"]:
         assert key in errors.keys()
         assert isinstance(errors[key], float)
-        
-        
+
+
 def test_common_error_metrics_2d_input():
     predictions = np.random.random((8, 16))
     target = np.random.random((8, 16))
