@@ -10,13 +10,24 @@ from ocf_ml_metrics.metrics.errors import (
 from tests.consts_for_tests import N_METRICS
 
 
-def test_common_error_metrics():
-    predictions = np.random.random((288, 1))
-    target = np.random.random((288, 1))
+def test_common_error_metrics_1d_input():
+    predictions = np.random.random(8)
+    target = np.random.random(8)
     errors = common_metrics(predictions=predictions, target=target)
     for key in ["mae", "rmse"]:
         assert key in errors.keys()
         assert isinstance(errors[key], float)
+
+
+def test_common_error_metrics_2d_input():
+    predictions = np.random.random((8, 16))
+    target = np.random.random((8, 16))
+    errors = common_metrics(predictions=predictions, target=target)
+    for key in ["mae", "rmse"]:
+        assert key in errors.keys()
+        assert isinstance(errors[key], np.ndarray)
+        assert errors[key].shape == (16,)
+        assert errors[key].dtype == np.float64
 
 
 def test_compute_error_part_of_year():
