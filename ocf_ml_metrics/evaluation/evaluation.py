@@ -1,4 +1,4 @@
-""" Evaluation the model results """
+"""Evaluation the model results"""
 
 from typing import Union
 
